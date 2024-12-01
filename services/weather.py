@@ -11,7 +11,7 @@ BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
 @weather_blueprint.route('/', methods=['GET'])
 def get_weather():
     city = request.args.get('city')
-    date_str = request.args.get('date')  # 假设日期是通过 'date' 参数传递的，例如 '2024-12-01'
+    date_str = request.args.get('date')  # 假设日期是通过 'date' 参数传递的，例如 'C'
 
     if not city:
         return jsonify({"error": "Please provide a city name"}), 400
