@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from services.weather import weather_blueprint
 #from services.trains import train_blueprint
@@ -14,5 +15,6 @@ app.register_blueprint(weather_blueprint, url_prefix='/weather')
 #app.register_blueprint(hotel_blueprint, url_prefix='/hotels')
 #app.register_blueprint(restaurant_blueprint, url_prefix='/restaurants')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # 使用 PORT 环境变量
+    app.run(host='0.0.0.0', port=port)
