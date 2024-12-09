@@ -45,3 +45,4 @@ def get_weather():
         return jsonify(result)
     else:
         return jsonify({'error': 'Failed to retrieve weather data'}), response.status_code
+#http://127.0.0.1:5000/weather?city=London&date=2024-12-09

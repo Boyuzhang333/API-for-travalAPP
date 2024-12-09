@@ -1,12 +1,19 @@
+import os
 import requests
-from flask import Flask, Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request
 from datetime import datetime
-import random
+from dotenv import load_dotenv  # 从 python-dotenv 导入加载函数
+
+# 加载 .env 文件中的环境变量
+load_dotenv()
+
 train_blueprint = Blueprint('train', __name__)
 
 # 使用 SNCF API 获取站点 ID
 def get_station_id(city_name):
-    api_key = "ce77f0e6-6291-4b03-8125-ebe88852aeaa"
+    api_key = os.getenv("SNCF_API_KEY")  # 从环境变量中获取 API 密钥
+    if not api_key:
+        return None  # 如果环境变量未定义，返回 None    
     url = f"https://api.sncf.com/v1/coverage/sncf/places?q={city_name}"
     
     response = requests.get(url, auth=(api_key, ''))
@@ -19,44 +26,35 @@ def get_station_id(city_name):
 
 @train_blueprint.route('/', methods=['GET'])
 def get_train_schedule():
-    print("Train schedule endpoint hit")  # 添加这一行用于调试
-
     # 获取出发地、目的地和出发日期参数
     origin = request.args.get('origin')
     destination = request.args.get('destination')
     date = request.args.get('date')
 
     if not origin or not destination or not date:
-        print("Missing required parameters: origin, destination, or date")  # 调试信息
         return jsonify({"error": "Origin, destination, and date are required"}), 400
 
     try:
         datetime.strptime(date, '%Y-%m-%d %H:%M')
     except ValueError:
-        print("Invalid date format")  # 调试信息
         return jsonify({"error": "Invalid date format. Use 'YYYY-MM-DD HH:MM'"}), 400
 
     # 获取出发地和目的地的站点 ID
     origin_id = get_station_id(origin)
     destination_id = get_station_id(destination)
-    print(f"Origin ID: {origin_id}, Destination ID: {destination_id}")
 
     if not origin_id or not destination_id:
-        print(f"Invalid origin or destination: '{origin}' or '{destination}'")  # 调试信息
         return jsonify({"error": f"Invalid origin or destination: '{origin}' or '{destination}'"}), 404
 
     # SNCF API 的 URL
     formatted_date = datetime.strptime(date, '%Y-%m-%d %H:%M').strftime('%Y%m%dT%H%M%S')
     api_url = f"https://api.sncf.com/v1/coverage/sncf/journeys?from={origin_id}&to={destination_id}&datetime={formatted_date}"
 
-    print(f"API URL: {api_url}")  # 调试信息
-
     # 发送 GET 请求到 SNCF API
     response = requests.get(api_url, auth=("ce77f0e6-6291-4b03-8125-ebe88852aeaa", ''))
 
     # 处理响应
     if response.status_code == 200:
-        print("SNCF API request successful")  # 调试信息
         data = response.json()
 
         # 获取列车行程数据
@@ -76,17 +74,19 @@ def get_train_schedule():
             arrival_dt = datetime.strptime(arrival, "%Y%m%dT%H%M%S")
             duration_str = f"{duration // 3600}h {(duration % 3600) // 60}m"
 
-            # 根据行程时间生成随机价格和座位类型
+            # 根据行程时间生成合理价格和座位类型
             hours = duration // 3600
-            if hours <= 2:
-                price = random.randint(20, 40)
-                seat_class = "Second Class"
-            elif hours <= 4:
-                price = random.randint(40, 70)
+            base_price = hours * 20  # 每小时约 20 欧元的基础价格
+            if (duration % 3600) // 60 > 0:  # 如果有额外的分钟数，增加小幅费用
+                base_price += 10
+
+            if hours <= 3:
+                price_second_class = base_price
                 seat_class = "Second Class"
             else:
-                price = random.randint(70, 120)
-                seat_class = "First Class"
+                price_second_class = base_price
+                price_first_class = base_price + 30  # 一等座比二等座贵 30 欧元
+                seat_class = "First Class or Second Class"
 
             # 添加到列表
             journeys.append({
@@ -95,13 +95,13 @@ def get_train_schedule():
                 "departure": departure_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "arrival": arrival_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "duration": duration_str,
-                "price": f"{price} EUR",
+                "price_second_class": f"{price_second_class} EUR",
+                "price_first_class": f"{price_first_class} EUR" if hours > 3 else "Not available",
                 "seat_class": seat_class
             })
 
         return jsonify(journeys)
 
     else:
-        print(f"Failed to retrieve data. Status code: {response.status_code}")  # 调试信息
         return jsonify({'error': f'Failed to retrieve data. Status code: {response.status_code}'}), response.status_code
 #http://127.0.0.1:5000/train/?origin=Paris&destination=Nice&date=2024-12-08%2007:00
