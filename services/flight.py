@@ -1,13 +1,15 @@
 
 import requests
 from flask import Flask, Blueprint, request, jsonify
-
+from dotenv import load_dotenv
+load_dotenv()
+import os
 flight_blueprint = Blueprint('flight', __name__)
 
 # OpenSky API 配置信息
 OPENSKY_API_URL = "https://opensky-network.org/api/flights"
-USERNAME = "bozhang3"  # 替换为你的用户名
-PASSWORD = "Zz20001028"  # 替换为你的密码
+USERNAME = os.getenv('USERNAME_OPENSKY')  # 替换为你的用户名
+PASSWORD = os.getenv('PASSWORD_OPENSKY')  # 替换为你的密码
 
 
 @flight_blueprint.route('/departure', methods=['GET'])

@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 import requests
+from dotenv import load_dotenv
+load_dotenv()
 from datetime import datetime
-
+import os
 weather_blueprint = Blueprint('weather', __name__)
 
 # OpenWeatherMap API 配置信息
-API_KEY = '8e135125a72740c9b107923cb85d2f9d'  # 替换为你的 API Key
+API_KEY = os.getenv('OPENWEATHERMAP_API_KEY')
 BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
 
 @weather_blueprint.route('/', methods=['GET'])
