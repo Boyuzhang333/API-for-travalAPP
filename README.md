@@ -14,7 +14,7 @@ Le nom de city est necessaire, le radius et le limite est optional.
 Return :sur PDF
  
 3.	restaurant:
-EX:https://api-for-travalapp.onrender.com/restaurants/?city=New York&radius=1000&limit=3
+EX:https://api-for-travalapp.onrender.com/restaurants/?city=NewYork&radius=1000&limit=3
 	Vous pouvez modifier New York , 1000, 3
 Le nom de city est necessaire, le radius et le limite est optional.
 Return :sur PDF
@@ -25,5 +25,9 @@ Vous pouvez modifier Paris , Nice, 2024-12-08, 07 :00   (%20 c’est a dire l �
 	L’heure est optional.
 	Return :sur PDF
 
+5.	attraction:
+EX:https://api-for-travalapp.onrender.com/attraction/?city=Nice&radius=1000&limit=5
+
 6.	flight:
 Cet API est pas complet, je cherche un autre
+
