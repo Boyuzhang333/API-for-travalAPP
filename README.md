@@ -1,5 +1,5 @@
 
-#HUB sert à un travelapp
+# HUB sert à un travelapp
 1.	weather: 
 EX: https://api-for-travalapp.onrender.com/weather?city=London&date=2024-12-09
 Vous pouvez modifier London et 2024-12-09,
