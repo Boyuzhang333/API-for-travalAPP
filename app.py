@@ -1,4 +1,8 @@
 import os
+import threading
+import requests
+import time
+
 from flask import Flask, jsonify
 from services.weather import weather_blueprint
 from services.train import train_blueprint
@@ -16,6 +20,19 @@ app.register_blueprint(hotel_blueprint, url_prefix='/hotel')
 app.register_blueprint(flight_blueprint, url_prefix='/flight')
 app.register_blueprint(places_blueprint, url_prefix='/attraction')
 
+
+PING_URL = "https://api-for-travalapp.onrender.com" 
+
+def auto_ping():
+    while True:
+        try:
+            response = requests.get(PING_URL)
+            print(f"Auto-ping réussi : {response.status_code}")
+        except Exception as e:
+            print(f"Erreur d'auto-ping : {e}")
+        time.sleep(30)  # Ping toutes les 30 secondes
+
+threading.Thread(target=auto_ping, daemon=True).start()
 # 默认根目录内容   
 @app.route('/')
 def home():
@@ -23,4 +40,4 @@ def home():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # 使用 PORT 环境变量
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', debug=True, port=port)
