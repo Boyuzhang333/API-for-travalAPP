@@ -10,6 +10,7 @@ from services.restaurant import restaurant_blueprint
 from services.hotel import hotel_blueprint
 from services.flight import flight_blueprint
 from services.attraction import places_blueprint
+from services.car import car_blueprint
 app = Flask(__name__)
 
 # 注册不同的蓝图
@@ -19,7 +20,7 @@ app.register_blueprint(restaurant_blueprint, url_prefix='/restaurants')
 app.register_blueprint(hotel_blueprint, url_prefix='/hotel')
 app.register_blueprint(flight_blueprint, url_prefix='/flight')
 app.register_blueprint(places_blueprint, url_prefix='/attraction')
-
+app.register_blueprint(car_blueprint, url_prefix='/car')
 
 PING_URL = "https://api-for-travalapp.onrender.com" 
 
