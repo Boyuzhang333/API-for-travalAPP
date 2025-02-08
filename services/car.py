@@ -1,12 +1,17 @@
+import os
 import requests
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# 加载 .env 文件中的环境变量
+load_dotenv()
 
 # 创建 car 蓝图
 car_blueprint = Blueprint('car', __name__)
 
-# OpenRouteService API Key
-ORS_API_KEY = "5b3ce3597851110001cf6248c4c60872b9ea4f27af6e5e8c79aebbf1"
+# 从环境变量中获取 OpenRouteService API Key
+ORS_API_KEY = os.getenv("ORS_API_KEY")
 
 def fetch_city_coordinates(city):
     """通过 OpenRouteService API 获取城市的经纬度"""
