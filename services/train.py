@@ -128,7 +128,14 @@ def get_train_schedule():
 
         responses = [morning_response, afternoon_response]
     else:
-        formatted_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S")
+        try:
+    # 如果日期带有时间
+            formatted_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S")
+        except ValueError:
+    # 如果日期只有年月日，默认时间为早上 06:00
+            formatted_date = datetime.strptime(date, "%Y-%m-%d") + timedelta(hours=6)
+            formatted_date = formatted_date.strftime("%Y%m%dT%H%M%S")
+
         responses = [fetch_train_data(origin_id, destination_id, formatted_date)]
 
     journeys = []
