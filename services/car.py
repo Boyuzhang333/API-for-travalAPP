@@ -106,4 +106,10 @@ def get_route():
 
     # 获取汽车路线
     car_route = get_car_route(origin, destination, date)
-    return jsonify(car_route) if car_route else jsonify({"error": "Could not retrieve car route"}), 500
+
+    if car_route:
+        return jsonify(car_route), 200
+    else:
+        # 明确返回 404，表示找不到路线，而不是 500
+        return jsonify({"error": "No car route found for the given origin and destination."}), 404
+
