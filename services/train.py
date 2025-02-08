@@ -2,7 +2,7 @@ import os
 import requests
 import math
 from flask import Blueprint, jsonify, request
-from datetime import datetime
+from datetime import datetime,timedelta
 from dotenv import load_dotenv
 
 # 加载 .env 文件中的环境变量
@@ -122,21 +122,27 @@ def get_train_schedule():
         morning_date = f"{today} 06:00"
         afternoon_date = f"{today} 14:00"
 
-        # 查询早上 06:00 之后的班次
-        morning_response = fetch_train_data(origin_id, destination_id, datetime.strptime(morning_date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S"))
-        afternoon_response = fetch_train_data(origin_id, destination_id, datetime.strptime(afternoon_date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S"))
+        morning_response = fetch_train_data(
+            origin_id, destination_id,
+            datetime.strptime(morning_date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S")
+        )
+        afternoon_response = fetch_train_data(
+            origin_id, destination_id,
+            datetime.strptime(afternoon_date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S")
+        )
 
         responses = [morning_response, afternoon_response]
     else:
         try:
-    # 如果日期带有时间
-            formatted_date = datetime.strptime(date, "%Y-%m-%d %H:%M").strftime("%Y%m%dT%H%M%S")
+            # 如果日期带有时间
+            dt_object = datetime.strptime(date, "%Y-%m-%d %H:%M")
         except ValueError:
-    # 如果日期只有年月日，默认时间为早上 06:00
-            formatted_date = datetime.strptime(date, "%Y-%m-%d") + timedelta(hours=6)
-            formatted_date = formatted_date.strftime("%Y%m%dT%H%M%S")
+            # 如果日期只有年月日，补全时间为早上 06:00
+            dt_object = datetime.strptime(date, "%Y-%m-%d") + timedelta(hours=6)
 
+        formatted_date = dt_object.strftime("%Y%m%dT%H%M%S")
         responses = [fetch_train_data(origin_id, destination_id, formatted_date)]
+
 
     journeys = []
 
